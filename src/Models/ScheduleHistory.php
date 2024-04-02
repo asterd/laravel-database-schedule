@@ -14,6 +14,7 @@ class ScheduleHistory extends Model
      * @var string
      */
     protected $table;
+    protected $connection;
 
     protected $fillable = [
         'command',
@@ -37,6 +38,7 @@ class ScheduleHistory extends Model
     {
         parent::__construct($attributes);
 
+        $this->connection = Config::get('database-schedule.connection', 'pgsql');
         $this->table = Config::get('database-schedule.table.schedule_histories', 'schedule_histories');
     }
 
