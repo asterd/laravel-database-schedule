@@ -91,7 +91,7 @@ class ScheduleController extends Controller
     {
         try {
             $schedule = app(config('database-schedule.model'));
-            $schedule->create($request->all());
+            $schedule->create($request->except(['_token', '_method']));
 
             return redirect()
                 ->action('\RobersonFaria\DatabaseSchedule\Http\Controllers\ScheduleController@index')
