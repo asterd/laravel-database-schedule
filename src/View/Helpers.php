@@ -36,7 +36,11 @@ class Helpers
             $caption = static::highlight($column, trans("schedule::schedule.fields.$column"));
             $direction = session()->get(Schedule::SESSION_KEY_DIRECTION) === 'asc' ? 'desc' : 'asc';
             if ($column === 'arguments' || $column === 'actions') {
-                $header .= sprintf('<th class="text-center text-nowrap">%s</th>', $caption);
+                if ($column === 'actions') {
+                    $header .= sprintf('<th class="text-center text-nowrap" style="width: 180px">%s</th>', $caption);
+                } else {
+                    $header .= sprintf('<th class="text-center text-nowrap">%s</th>', $caption);
+                }
             } else {
                 $route = static::indexRoute(['orderBy' => $column, 'direction' => $direction]);
                 $header .= sprintf('<th class="text-center text-nowrap"><a href="%s">%s</a></th>', $route, $caption);
