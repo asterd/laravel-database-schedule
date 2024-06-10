@@ -1,7 +1,9 @@
 @extends('schedule::layout.master')
 
 @section('content')
-    <div class="container-fluid">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
+
+    <div class="container">
         @include('schedule::messages')
         <div class="card">
             <div class="card-header">{{ trans('schedule::schedule.titles.show') }}</div>
@@ -13,8 +15,9 @@
                                 <tr class="d-flex">
                                     <th class="col-2">{{ trans('schedule::schedule.fields.command') }}</th>
                                     <th class="col-4">{{ trans('schedule::schedule.fields.arguments') }}</th>
-                                    <th class="col-4">{{ trans('schedule::schedule.fields.options') }}</th>
+                                    <th class="col-3">{{ trans('schedule::schedule.fields.options') }}</th>
                                     <th class="col-2">{{ trans('schedule::schedule.fields.expression') }}</th>
+                                    <th class="col-1">{{ trans('schedule::schedule.fields.actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -28,7 +31,7 @@
                                             @endforeach
                                         @endif
                                     </td>
-                                    <td class="col-4">
+                                    <td class="col-3">
                                         @if(isset($history->options))
                                             @foreach($history->options as $param => $value)
                                                 @if(is_integer($param))
@@ -41,10 +44,15 @@
                                         @endif
                                     </td>
                                     <td class="col-2">{{ $history->created_at }}</td>
+                                    <td class="col-1">
+                                        <button class="btn" data-clipboard-text="{{ $history->output }}" style="padding: 0px">
+                                            <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
                                 </tr>
                                 <tr class="d-flex">
                                     <td colspan="2" class="col-12">
-                                        <pre style="overflow: scroll;white-space: pre-wrap; max-width: 100%; height: 200px">
+                                        <pre style="overflow: scroll;white-space: pre-line; max-width: 100%; height: 80px">
                                             {{ $history->output }}
                                         </pre>
                                     </td>
@@ -54,6 +62,17 @@
                         </table>
                     </div>
                 </div>
+                <!-- JavaScript -->
+                <script>
+                    new ClipboardJS('.btn');
+
+                    // Opzionale: Aggiungi un feedback
+                    document.querySelectorAll('.btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            alert('Text copied to clipboard!');
+                        });
+                    });
+                </script>
             </div>
             <div class="card-footer text-right">
                 <div class="row">
