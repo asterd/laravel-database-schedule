@@ -7,7 +7,7 @@ return [
     /**
      *  Table and Model used for schedule list
      */
-    'connection' => env('DATABASE_CONNECTION', 'mysql'),
+    'connection' => env('SCHEDULE_DATABASE_CONNECTION', 'mysql'),
     'table' => [
         'schedules' => 'schedules',
         'schedule_histories' => 'schedule_histories'
