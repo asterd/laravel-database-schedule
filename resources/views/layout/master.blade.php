@@ -9,16 +9,18 @@
 
     <title>{{ config('app.name', 'Laravel') }} - Scheduling Configuration</title>
 
-    <!-- Styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    <!-- Styles original-->
+    <!--link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
           integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
-          crossorigin="anonymous">
+          crossorigin="anonymous"  flatly cosmo -->
+    <!-- Styles custom-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.6.2/dist/cosmo/bootstrap.min.css" crossorigin="anonymous">
 
     @stack('css')
 </head>
 <body>
 <div id="app">
-    <main class="p-5">
+    <main>
         @yield('content')
     </main>
 </div>

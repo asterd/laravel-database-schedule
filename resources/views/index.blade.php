@@ -1,16 +1,16 @@
 @extends('schedule::layout.master')
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid" style="padding: 0px">
         @include('schedule::messages')
         <div class="card">
             <div class="card-header">{{ trans('schedule::schedule.titles.list') }}
-                <small><code>
-                        {{ trans('schedule::schedule.messages.timezone') }}{{ config('database-schedule.timezone') }}
-                    </code></small>
-                    <span style="float: right;">
-                        <a href="{{ config('app.url', '/') }}"><i class="bi bi-house-fill"></i> {{ trans('schedule::schedule.titles.back_to_application') }}</a>
-                    </span>
+                <span class="badge badge-info ml-2">
+                    {{ trans('schedule::schedule.messages.timezone') }}{{ config('database-schedule.timezone') }}
+                </span>
+                <span style="float: right;">
+                    <a href="{{ config('app.url', '/') }}"><i class="bi bi-house-fill"></i> {{ trans('schedule::schedule.titles.back_to_application') }}</a>
+                </span>
             </div>
             <div class="card-body table-responsive"
                  x-data="{
@@ -123,7 +123,7 @@
             </div>
             <div class="card-footer text-right">
                 <a href="{{ action('\RobersonFaria\DatabaseSchedule\Http\Controllers\ScheduleController@create') }}"
-                   class="btn btn-primary">
+                   class="btn btn-primary btn-sm">
                     {{ trans('schedule::schedule.buttons.create') }}
                 </a>
             </div>
