@@ -2,7 +2,8 @@
 
 namespace RobersonFaria\DatabaseSchedule\Http\Services;
 
-use App\Console\Kernel;
+# use App\Console\Kernel; # replaced by Illuminate\Foundation\Console\Kernel
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Collection;
 
 class CommandService
