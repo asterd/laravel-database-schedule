@@ -85,12 +85,12 @@ class ScheduleController extends Controller
                 array_values($task->getArguments()) + $task->getOptions()
             );
         }
+        //ensure output is being captured to write history
+        $event->storeOutput();
+
         $event->run(Container::getInstance());
 
         // $event->cron($task->expression);
-
-        //ensure output is being captured to write history
-        $event->storeOutput();
 
         if ($task->environments) {
             $event->environments(explode(',', $task->environments));
@@ -153,8 +153,8 @@ class ScheduleController extends Controller
         });
 
 
-        return response()->json(Process::$exitCodes[$event->exitCode] ?? 'Unknown error');
-
+        // return response()->json(Process::$exitCodes[$event->exitCode] ?? 'Unknown error');
+        return redirect()->back()->with('success', Process::$exitCodes[$event->exitCode] ?? 'Unknown error');
         // unset($event);
     }
 
