@@ -121,6 +121,7 @@ class Schedule
 
     public function runOnTimeTask($task, $schedule)
     {
+        dump($task);
         if ($task->command === 'custom') {
             $command = $task->command_custom;
             $event = $schedule->exec($command);
@@ -132,9 +133,9 @@ class Schedule
             );
         }
         //ensure output is being captured to write history
-        $event->storeOutput();
-
         $event->run(Container::getInstance());
+
+        $event->storeOutput();
 
         // $event->cron($task->expression);
 
@@ -203,7 +204,7 @@ class Schedule
         return Process::$exitCodes[$event->exitCode] ?? 'Unknown error';
     }
 
-    public function createLogFile($task, $event, $type = 'info')
+    private function createLogFile($task, $event, $type = 'info')
     {
         if ($task->log_filename) {
             $logChannel = Log::build([
@@ -214,7 +215,7 @@ class Schedule
         }
     }
 
-    public function createHistoryEntry($task, $event, $command)
+    private function createHistoryEntry($task, $event, $command)
     {
         $task->histories()->create(
             [
