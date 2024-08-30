@@ -77,7 +77,7 @@
                                     <a href="{{ action('\RobersonFaria\DatabaseSchedule\Http\Controllers\ScheduleController@run', $schedule) }}"
                                        class="btn btn-sm btn-warning">
                                         <i title="{{ trans('schedule::schedule.buttons.run') }}"
-                                           class="bi bi-dot"> </i>
+                                           class="bi bi-play-fill"> </i>
                                     </a>
                                     <a href="{{ action('\RobersonFaria\DatabaseSchedule\Http\Controllers\ScheduleController@show', $schedule) }}"
                                        class="btn btn-sm btn-info">
