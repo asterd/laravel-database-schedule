@@ -132,18 +132,18 @@ class ScheduleController extends Controller
 
         $event->onSuccess(
             function () use ($task, $event, $command) {
-                $this->createLogFile($task, $event);
+                $task->createLogFile($task, $event);
                 if ($task->log_success) {
-                    $this->createHistoryEntry($task, $event, $command);
+                    $task->createHistoryEntry($task, $event, $command);
                 }
             }
         );
 
         $event->onFailure(
             function () use ($task, $event, $command) {
-                $this->createLogFile($task, $event, 'critical');
+                $task->createLogFile($task, $event, 'critical');
                 if ($task->log_error) {
-                    $this->createHistoryEntry($task, $event, $command);
+                    $task->createHistoryEntry($task, $event, $command);
                 }
             }
         );
@@ -154,7 +154,8 @@ class ScheduleController extends Controller
 
 
         // return response()->json(Process::$exitCodes[$event->exitCode] ?? 'Unknown error');
-        return redirect()->back()->with('success', Process::$exitCodes[$event->exitCode] ?? 'Unknown error');
+        $message = Process::$exitCodes[$event->exitCode] ?? 'Unknown error';
+        return redirect()->back()->with($message === 'OK' ? 'success' : 'error', $message);
         // unset($event);
     }
 

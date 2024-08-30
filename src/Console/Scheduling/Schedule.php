@@ -117,7 +117,7 @@ class Schedule
         }
     }
 
-    private function createLogFile($task, $event, $type = 'info')
+    public function createLogFile($task, $event, $type = 'info')
     {
         if ($task->log_filename) {
             $logChannel = Log::build([
@@ -128,7 +128,7 @@ class Schedule
         }
     }
 
-    private function createHistoryEntry($task, $event, $command)
+    public function createHistoryEntry($task, $event, $command)
     {
         $task->histories()->create(
             [
