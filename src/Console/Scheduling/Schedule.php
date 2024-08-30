@@ -121,7 +121,6 @@ class Schedule
 
     public function runOnTimeTask($task, $schedule)
     {
-        dump($task);
         if ($task->command === 'custom') {
             $command = $task->command_custom;
             $event = $schedule->exec($command);
@@ -133,11 +132,8 @@ class Schedule
             );
         }
         //ensure output is being captured to write history
-        $event->run(Container::getInstance());
-
         $event->storeOutput();
-
-        // $event->cron($task->expression);
+        $event->run(Container::getInstance());
 
         if ($task->environments) {
             $event->environments(explode(',', $task->environments));
@@ -177,30 +173,12 @@ class Schedule
             $event->onOneServer();
         }
 
-        $event->onSuccess(
-            function () use ($task, $event, $command) {
-                $this->createLogFile($task, $event);
-                if ($task->log_success) {
-                    $this->createHistoryEntry($task, $event, $command);
-                }
-            }
-        );
+        $this->createLogFile($task, $event);
+        if ($task->log_success) {
+            $this->createHistoryEntry($task, $event, $command);
+        }
+        unlink($event->output);
 
-        $event->onFailure(
-            function () use ($task, $event, $command) {
-                $this->createLogFile($task, $event, 'critical');
-                if ($task->log_error) {
-                    $this->createHistoryEntry($task, $event, $command);
-                }
-            }
-        );
-
-        $event->after(function () use ($event) {
-            unlink($event->output);
-        });
-
-
-        // return response()->json(Process::$exitCodes[$event->exitCode] ?? 'Unknown error');
         return Process::$exitCodes[$event->exitCode] ?? 'Unknown error';
     }
 

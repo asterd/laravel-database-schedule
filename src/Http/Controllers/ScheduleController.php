@@ -79,7 +79,6 @@ class ScheduleController extends Controller
         $message = $res->runOnTimeTask($task, $schedule);
 
         return redirect()->back()->with($message === 'OK' ? 'success' : 'error', $message);
-        // unset($event);
     }
 
 
