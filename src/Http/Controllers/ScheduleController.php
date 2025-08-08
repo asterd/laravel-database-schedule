@@ -121,14 +121,23 @@ class ScheduleController extends Controller
      * @param Schedule $schedule
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Http\Response|\Illuminate\View\View
      */
-    public function show(Schedule $schedule)
+    public function show2(Schedule $schedule)
     {
         $schedule->load(['histories' => function ($query) {
-            $query->latest();
+            $query->latest()->paginate(config('database-schedule.per_page', 10));
         }]);
 
         return view('schedule::show')
             ->with(compact('schedule'));
+    }
+
+    public function show(Schedule $schedule)
+    {
+        $histories = $schedule->histories()
+            ->latest()
+            ->paginate(20); // 20 per pagina
+
+        return view('schedule::show', compact('schedule', 'histories'));
     }
 
     /**

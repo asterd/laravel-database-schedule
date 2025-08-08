@@ -21,7 +21,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            @foreach($schedule->histories as $history)
+                            @foreach($histories as $history)
                                 <tr class="d-flex">
                                     <td class="col-2">{{ $history->command }}</td>
                                     <td class="col-4">
@@ -73,6 +73,12 @@
                         });
                     });
                 </script>
+
+                <div class='d-flex'>
+                    <div class='mx-auto'>
+                        {{ $histories->links() }}
+                    </div>
+                </div>
             </div>
             <div class="card-footer text-right">
                 <div class="row">
