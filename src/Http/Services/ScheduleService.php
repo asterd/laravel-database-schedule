@@ -32,6 +32,13 @@ class ScheduleService
     {
         $store = config('database-schedule.cache.store');
         $key = config('database-schedule.cache.key');
+        $ttl = config('database-schedule.cache.ttl');
+
+        if ($ttl) {
+            return cache()->store($store)->remember($key, now()->addSeconds((int) $ttl), function () {
+                return $this->model->active()->get();
+            });
+        }
 
         return cache()->store($store)->rememberForever($key, function () {
             return $this->model->active()->get();

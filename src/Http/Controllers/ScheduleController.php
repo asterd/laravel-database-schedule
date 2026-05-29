@@ -4,11 +4,9 @@ namespace RobersonFaria\DatabaseSchedule\Http\Controllers;
 
 use RobersonFaria\DatabaseSchedule\Http\Requests\ScheduleRequest;
 use RobersonFaria\DatabaseSchedule\Http\Services\CommandService;
-use RobersonFaria\DatabaseSchedule\Http\Services\ScheduleService;
 use RobersonFaria\DatabaseSchedule\Models\Schedule;
 use RobersonFaria\DatabaseSchedule\View\Helpers;
-use Illuminate\Console\Scheduling\Schedule as BaseSchedule;
-use RobersonFaria\DatabaseSchedule\Console\Scheduling\Schedule as RunSchedule;
+use Symfony\Component\Process\Process;
 
 class ScheduleController extends Controller
 {
@@ -73,12 +71,38 @@ class ScheduleController extends Controller
         return redirect()->to(Helpers::indexRoute());
     }
 
-    public function run(Schedule $task, BaseSchedule $schedule)
+    public function run(Schedule $task)
     {
-        $res = new RunSchedule(app(ScheduleService::class), $schedule);
-        $message = $res->runOnTimeTask($task, $schedule);
+        try {
+            $history = $task->histories()->create([
+                'command' => $task->command === 'custom' ? $task->command_custom : $task->command,
+                'params' => $task->getArguments(),
+                'options' => $task->getOptions(),
+                'output' => 'Queued at ' . now()->toDateTimeString() . PHP_EOL,
+            ]);
 
-        return redirect()->back()->with($message === 'OK' ? 'success' : 'error', $message);
+            $this->startManualRunProcess($task, $history->id);
+
+            return redirect()
+                ->action('\RobersonFaria\DatabaseSchedule\Http\Controllers\ScheduleController@show', $task)
+                ->with('success', trans('schedule::schedule.messages.run-dispatched'));
+        } catch (\Exception $e) {
+            report($e);
+            return redirect()->back()->with('error', trans('schedule::schedule.messages.run-dispatch-error'));
+        }
+    }
+
+    private function startManualRunProcess(Schedule $task, int $historyId): void
+    {
+        $command = implode(' ', [
+            escapeshellarg(PHP_BINARY),
+            escapeshellarg(base_path('artisan')),
+            'database-schedule:run-task',
+            (int) $task->id,
+            $historyId,
+        ]) . ' > /dev/null 2>&1 &';
+
+        Process::fromShellCommandline($command, base_path())->run();
     }
 
 

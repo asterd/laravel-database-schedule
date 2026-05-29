@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 
-class AddEnvironmentsToSchedulesTable extends Migration
+class AddWithoutOverlappingExpiresAtToSchedulesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,7 +15,7 @@ class AddEnvironmentsToSchedulesTable extends Migration
     public function up()
     {
         Schema::table(Config::get('database-schedule.table.schedules', 'schedules'), function (Blueprint $table) {
-            $table->string('environments')->after('expression')->nullable();
+            $table->unsignedInteger('without_overlapping_expires_at')->nullable()->after('without_overlapping');
         });
     }
 
@@ -27,7 +27,7 @@ class AddEnvironmentsToSchedulesTable extends Migration
     public function down()
     {
         Schema::table(Config::get('database-schedule.table.schedules', 'schedules'), function (Blueprint $table) {
-            $table->dropColumn('environments');
+            $table->dropColumn('without_overlapping_expires_at');
         });
     }
 }

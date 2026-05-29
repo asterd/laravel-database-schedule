@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Validator;
 use RobersonFaria\DatabaseSchedule\Observer\ScheduleObserver;
 use Illuminate\Console\Scheduling\Schedule as BaseSchedule;
 use RobersonFaria\DatabaseSchedule\Console\Commands\TestJobCommand;
+use RobersonFaria\DatabaseSchedule\Console\Commands\TestLongJobCommand;
 use RobersonFaria\DatabaseSchedule\Console\Commands\ScheduleClearCacheCommand;
+use RobersonFaria\DatabaseSchedule\Console\Commands\ScheduleRunTaskCommand;
 use RobersonFaria\DatabaseSchedule\Console\Scheduling\Schedule;
 
 class DatabaseSchedulingServiceProvider extends DatabaseScheduleApplicationServiceProvider
@@ -69,8 +71,10 @@ class DatabaseSchedulingServiceProvider extends DatabaseScheduleApplicationServi
 
         $this->commands([
             TestJobCommand::class,
+            TestLongJobCommand::class,
             PhpUnitTestJobCommand::class,
             ScheduleClearCacheCommand::class,
+            ScheduleRunTaskCommand::class,
         ]);
     }
 

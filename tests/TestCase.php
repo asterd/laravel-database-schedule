@@ -14,8 +14,6 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->withFactories(__DIR__ . '/../database/factories');
     }
 
     /**
@@ -48,5 +46,6 @@ abstract class TestCase extends BaseTestCase
             'database' => ':memory:',
             'prefix' => '',
         ]);
+        $app['config']->set('database-schedule.connection', 'testbench');
     }
 }

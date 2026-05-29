@@ -7,6 +7,7 @@ use RobersonFaria\DatabaseSchedule\Http\Services\ScheduleService;
 use \Illuminate\Console\Scheduling\Schedule as BaseSchedule;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 class Schedule
 {
@@ -26,7 +27,15 @@ class Schedule
     public function execute()
     {
         foreach ($this->tasks as $task) {
-            $this->dispatch($task);
+            try {
+                $this->dispatch($task);
+            } catch (Throwable $exception) {
+                Log::error('Unable to register database scheduled task.', [
+                    'task_id' => $task->id ?? null,
+                    'command' => $task->command ?? null,
+                    'exception' => $exception,
+                ]);
+            }
         }
     }
 
@@ -45,51 +54,14 @@ class Schedule
                 $command = $task->command;
                 $event = $this->schedule->command(
                     $command,
-                    array_values($task->getArguments()) + $task->getOptions()
+                    $task->getCommandParameters()
                 );
             }
             $event->cron($task->expression);
 
             //ensure output is being captured to write history
             $event->storeOutput();
-
-            if ($task->environments) {
-                $event->environments(explode(',', $task->environments));
-            }
-
-            if ($task->even_in_maintenance_mode) {
-                $event->evenInMaintenanceMode();
-            }
-
-            if ($task->without_overlapping) {
-                $event->withoutOverlapping();
-            }
-
-            if ($task->run_in_background) {
-                $event->runInBackground();
-            }
-
-            if (!empty($task->webhook_before)) {
-                $event->pingBefore($task->webhook_before);
-            }
-
-            if (!empty($task->webhook_after)) {
-                $event->thenPing($task->webhook_after);
-            }
-
-            if (!empty($task->email_output)) {
-                if ($task->sendmail_success) {
-                    $event->emailOutputTo($task->email_output);
-                }
-
-                if ($task->sendmail_error) {
-                    $event->emailOutputOnFailure($task->email_output);
-                }
-            }
-
-            if (!empty($task->on_one_server)) {
-                $event->onOneServer();
-            }
+            $this->applyEventConfiguration($event, $task);
 
             $event->onSuccess(
                 function () use ($task, $event, $command) {
@@ -110,7 +82,7 @@ class Schedule
             );
 
             $event->after(function () use ($event) {
-                unlink($event->output);
+                $this->deleteOutputFile($event);
             });
 
             unset($event);
@@ -128,15 +100,35 @@ class Schedule
             $command = $task->command;
             $event = $schedule->command(
                 $command,
-                array_values($task->getArguments()) + $task->getOptions()
+                $task->getCommandParameters()
             );
         }
         //ensure output is being captured to write history
         $event->storeOutput();
+        $this->applyEventConfiguration($event, $task);
         $event->run(Container::getInstance());
 
+        $isSuccess = (int) $event->exitCode === 0;
+        $this->createLogFile($task, $event, $isSuccess ? 'info' : 'critical');
+        if ($isSuccess && $task->log_success) {
+            $this->createHistoryEntry($task, $event, $command);
+        }
+        if (!$isSuccess && $task->log_error) {
+            $this->createHistoryEntry($task, $event, $command);
+        }
+        $this->deleteOutputFile($event);
+
+        return Process::$exitCodes[$event->exitCode] ?? 'Unknown error';
+    }
+
+    private function applyEventConfiguration($event, $task): void
+    {
+        if ($timezone = config('database-schedule.timezone')) {
+            $event->timezone($timezone);
+        }
+
         if ($task->environments) {
-            $event->environments(explode(',', $task->environments));
+            $event->environments(array_filter(array_map('trim', explode(',', $task->environments))));
         }
 
         if ($task->even_in_maintenance_mode) {
@@ -144,7 +136,9 @@ class Schedule
         }
 
         if ($task->without_overlapping) {
-            $event->withoutOverlapping();
+            $expiresAt = $task->without_overlapping_expires_at
+                ?: config('database-schedule.without_overlapping.expires_at', 1440);
+            $event->withoutOverlapping((int) $expiresAt);
         }
 
         if ($task->run_in_background) {
@@ -172,19 +166,11 @@ class Schedule
         if (!empty($task->on_one_server)) {
             $event->onOneServer();
         }
-
-        $this->createLogFile($task, $event);
-        if ($task->log_success) {
-            $this->createHistoryEntry($task, $event, $command);
-        }
-        unlink($event->output);
-
-        return Process::$exitCodes[$event->exitCode] ?? 'Unknown error';
     }
 
     private function createLogFile($task, $event, $type = 'info')
     {
-        if ($task->log_filename) {
+        if ($task->log_filename && is_readable($event->output)) {
             $logChannel = Log::build([
                 'driver' => 'single',
                 'path' => storage_path('logs/' . $task->log_filename . '.log'),
@@ -200,8 +186,15 @@ class Schedule
                 'command' => $command,
                 'params' => $task->getArguments(),
                 'options' => $task->getOptions(),
-                'output' => file_get_contents($event->output)
+                'output' => is_readable($event->output) ? file_get_contents($event->output) : ''
             ]
         );
+    }
+
+    private function deleteOutputFile($event): void
+    {
+        if (!empty($event->output) && is_file($event->output)) {
+            unlink($event->output);
+        }
     }
 }

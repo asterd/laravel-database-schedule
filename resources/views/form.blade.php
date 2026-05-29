@@ -297,6 +297,22 @@
         @enderror
     </div>
 
+    <div class="form-group mt-2">
+        <label>{{ trans('schedule::schedule.fields.without_overlapping_expires_at') }}</label>
+        <input type="number"
+               min="1"
+               class="form-control @error('without_overlapping_expires_at') is-invalid @enderror"
+               name="without_overlapping_expires_at"
+               id="without_overlapping_expires_at"
+               value="{{ old('without_overlapping_expires_at', $schedule->without_overlapping_expires_at ?? config('database-schedule.without_overlapping.expires_at')) }}">
+        @error('without_overlapping_expires_at')
+        <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+        <small class="form-text text-muted">
+            {{ trans('schedule::schedule.messages.help-without-overlapping-expires-at') }}
+        </small>
+    </div>
+
     <div class="form-check">
         <input type="checkbox" class="form-check-input @error('on_one_server') is-invalid @enderror"
                name="on_one_server"

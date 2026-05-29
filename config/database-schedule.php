@@ -17,6 +17,11 @@ return [
     'timezone' => env('SCHEDULE_TIMEZONE', config('app.timezone')),
     'middleware' => 'web',
     'guard' => 'web',
+    'allow_dynamic_parameters' => env('SCHEDULE_ALLOW_DYNAMIC_PARAMETERS', true),
+
+    'without_overlapping' => [
+        'expires_at' => env('SCHEDULE_WITHOUT_OVERLAPPING_EXPIRES_AT', 1440),
+    ],
 
     /**
      * If restricted_access is true, the user must be authenticated and meet the definition of `viewDatabaseSchedule` gate
@@ -34,6 +39,7 @@ return [
     'cache' => [
         'store' => env('SCHEDULE_CACHE_DRIVER', 'file'),
         'key' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_schedule_'),
+        'ttl' => env('SCHEDULE_CACHE_TTL', null),
         'enabled' => env('SCHEDULE_CACHE_ENABLE', !config('app.debug')),
     ],
 

@@ -41,6 +41,7 @@ class ScheduleRequest extends FormRequest
             'log_error' => 'present|boolean',
             'even_in_maintenance_mode' => 'present|boolean',
             'without_overlapping' => 'present|boolean',
+            'without_overlapping_expires_at' => 'nullable|integer|min:1',
             'on_one_server' => 'present|boolean',
             'run_in_background' => 'present|boolean'
         ];
@@ -57,6 +58,7 @@ class ScheduleRequest extends FormRequest
             'log_error' => false,
             'even_in_maintenance_mode' => false,
             'without_overlapping' => false,
+            'without_overlapping_expires_at' => null,
             'on_one_server' => false,
             'run_in_background' => false
         ];

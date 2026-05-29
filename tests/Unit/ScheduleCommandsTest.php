@@ -21,6 +21,10 @@ class ScheduleCommandsTest extends TestCase
             $mock->shouldReceive('storeOutput')
                 ->once();
 
+            $mock->shouldReceive('timezone')
+                ->once()
+                ->with('UTC');
+
             $mock->shouldReceive('onSuccess')
                 ->once();
 
@@ -34,10 +38,9 @@ class ScheduleCommandsTest extends TestCase
 
     public function testRunInspireCommand()
     {
-        factory(Schedule::class)
-            ->create([
-                'command' => 'inspire'
-            ]);
+        Schedule::query()->create([
+            'command' => 'inspire'
+        ]);
 
 
         $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
@@ -53,13 +56,12 @@ class ScheduleCommandsTest extends TestCase
 
     public function testRunInspireWithArguments()
     {
-        factory(Schedule::class)
-            ->create([
-                'command' => 'inspire',
-                'params' => [
-                    "test" => ["value" => "1", "type" => "string"]
-                ]
-            ]);
+        Schedule::query()->create([
+            'command' => 'inspire',
+            'params' => [
+                "test" => ["value" => "1", "type" => "string"]
+            ]
+        ]);
 
         $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
             $mock->shouldReceive('command')
@@ -74,13 +76,12 @@ class ScheduleCommandsTest extends TestCase
 
     public function testRunInspireWithOptionalArguments()
     {
-        factory(Schedule::class)
-            ->create([
-                'command' => 'inspire',
-                'params' => [
-                    "test" => ["value" => null, "type" => "string"]
-                ]
-            ]);
+        Schedule::query()->create([
+            'command' => 'inspire',
+            'params' => [
+                "test" => ["value" => null, "type" => "string"]
+            ]
+        ]);
 
         $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
             $mock->shouldReceive('command')
@@ -95,18 +96,83 @@ class ScheduleCommandsTest extends TestCase
 
     public function testRunInspireWithOptionsBoolean()
     {
-        factory(Schedule::class)
-            ->create([
-                'command' => 'inspire',
-                'options' => [
-                    "argDisabledTrue" => "on"
-                ]
-            ]);
+        Schedule::query()->create([
+            'command' => 'inspire',
+            'options' => [
+                "argDisabledTrue" => "on"
+            ]
+        ]);
 
         $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
             $mock->shouldReceive('command')
                 ->once()
                 ->with('inspire', ['--argDisabledTrue'])
+                ->andReturn($this->event);
+        });
+
+        $scheduleService = app(\RobersonFaria\DatabaseSchedule\Console\Scheduling\Schedule::class);
+        $scheduleService->execute();
+    }
+
+    public function testArgumentsAndBooleanOptionsAreMergedWithoutLosingOptions()
+    {
+        Schedule::query()->create([
+            'command' => 'inspire',
+            'params' => [
+                "test" => ["value" => "1", "type" => "string"]
+            ],
+            'options' => [
+                "force" => "on"
+            ]
+        ]);
+
+        $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
+            $mock->shouldReceive('command')
+                ->once()
+                ->with('inspire', ['1', '--force'])
+                ->andReturn($this->event);
+        });
+
+        $scheduleService = app(\RobersonFaria\DatabaseSchedule\Console\Scheduling\Schedule::class);
+        $scheduleService->execute();
+    }
+
+    public function testZeroStringArgumentIsPreserved()
+    {
+        Schedule::query()->create([
+            'command' => 'inspire',
+            'params' => [
+                "test" => ["value" => "0", "type" => "string"]
+            ]
+        ]);
+
+        $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
+            $mock->shouldReceive('command')
+                ->once()
+                ->with('inspire', ['0'])
+                ->andReturn($this->event);
+        });
+
+        $scheduleService = app(\RobersonFaria\DatabaseSchedule\Console\Scheduling\Schedule::class);
+        $scheduleService->execute();
+    }
+
+    public function testWithoutOverlappingUsesConfiguredExpiration()
+    {
+        Schedule::query()->create([
+            'command' => 'inspire',
+            'without_overlapping' => true,
+            'without_overlapping_expires_at' => 30,
+        ]);
+
+        $this->event->shouldReceive('withoutOverlapping')
+            ->once()
+            ->with(30);
+
+        $this->mock(\Illuminate\Console\Scheduling\Schedule::class, function (Mockery\MockInterface $mock) {
+            $mock->shouldReceive('command')
+                ->once()
+                ->with('inspire', [])
                 ->andReturn($this->event);
         });
 

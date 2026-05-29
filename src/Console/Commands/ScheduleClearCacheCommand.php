@@ -12,7 +12,7 @@ class ScheduleClearCacheCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'schedule:clear-cache';
+    protected $signature = 'database-schedule:clear-cache';
 
     /**
      * The console command description.

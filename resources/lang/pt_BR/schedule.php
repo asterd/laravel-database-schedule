@@ -15,6 +15,7 @@ return [
         'output' => 'Saída',
         'even_in_maintenance_mode' => 'Também em modo de manutenção',
         'without_overlapping' => 'Sem sobreposição',
+        'without_overlapping_expires_at' => 'TTL do bloqueio sem sobreposição em minutos',
         'on_one_server' => 'Executar tarefa agendada apenas em um servidor',
         'webhook_before' => 'URL Antes',
         'webhook_after' => 'URL Após',
@@ -35,6 +36,9 @@ return [
         'custom' => 'Comando customizado',
         'custom-command-here' => 'Digite o comando customizado (e.g. `cat /proc/cpuinfo` or `artisan db:migrate`)',
         'help-cron-expression' => 'Se necessário clique aqui e use uma ferramenta para facilitar a criação de uma expressão cron',
+        'help-without-overlapping-expires-at' => 'Usado apenas quando sem sobreposição está ativo. Mantenha próximo ao maior tempo esperado de execução.',
+        'run-dispatched' => 'Execução da tarefa agendada iniciada. Abra o histórico para acompanhar a saída.',
+        'run-dispatch-error' => 'Não foi possível iniciar a execução da tarefa agendada.',
         'attention-type-function' => "ATENÇÃO: parâmetros do tipo 'function' são executados antes da execução da tarefa agendada e seu retorno é usado como parâmetro. Use com cuidado, isso pode gerar erros"
     ],
     'status' => [

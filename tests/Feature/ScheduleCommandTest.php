@@ -10,10 +10,9 @@ class ScheduleCommandTest extends TestCase
 
     public function testInspireTestCommand()
     {
-        $task = factory(Schedule::class)
-            ->create([
-                'command' => 'inspire'
-            ]);
+        $task = Schedule::query()->create([
+            'command' => 'inspire'
+        ]);
 
         $this->artisan('schedule:run')->execute();
 
@@ -28,16 +27,15 @@ class ScheduleCommandTest extends TestCase
 
     public function testCommandWithRequiredArgument()
     {
-        $task = factory(Schedule::class)
-            ->create([
-                'command' => 'phpunit:test',
-                'params' => [
-                    'argument' => [
-                        'value' => 'this is a argument',
-                        'type' => 'string'
-                    ]
+        $task = Schedule::query()->create([
+            'command' => 'phpunit:test',
+            'params' => [
+                'argument' => [
+                    'value' => 'this is a argument',
+                    'type' => 'string'
                 ]
-            ]);
+            ]
+        ]);
         /** @var \Illuminate\Console\Scheduling\Schedule $schedule */
         $schedule = app()->make(\Illuminate\Console\Scheduling\Schedule::class);
 
@@ -61,20 +59,19 @@ class ScheduleCommandTest extends TestCase
 
     public function testCommandWithOptionalArgument()
     {
-        $task = factory(Schedule::class)
-            ->create([
-                'command' => 'phpunit:test',
-                'params' => [
-                    'argument' => [
-                        'value' => 'this is a argument',
-                        'type' => 'string'
-                    ],
-                    'optionalArgument' => [
-                        'value' => 'optional argument',
-                        'type' => 'string'
-                    ]
+        $task = Schedule::query()->create([
+            'command' => 'phpunit:test',
+            'params' => [
+                'argument' => [
+                    'value' => 'this is a argument',
+                    'type' => 'string'
+                ],
+                'optionalArgument' => [
+                    'value' => 'optional argument',
+                    'type' => 'string'
                 ]
-            ]);
+            ]
+        ]);
         /** @var \Illuminate\Console\Scheduling\Schedule $schedule */
         $schedule = app()->make(\Illuminate\Console\Scheduling\Schedule::class);
 
@@ -103,16 +100,15 @@ class ScheduleCommandTest extends TestCase
 
     public function testCommandWithFunctionTypeArgument()
     {
-        $task = factory(Schedule::class)
-            ->create([
-                'command' => 'phpunit:test',
-                'params' => [
-                    'argument' => [
-                        'value' => '\Carbon\Carbon::now()->format("Y/m/d");',
-                        'type' => 'function'
-                    ]
+        $task = Schedule::query()->create([
+            'command' => 'phpunit:test',
+            'params' => [
+                'argument' => [
+                    'value' => '\Carbon\Carbon::now()->format("Y/m/d");',
+                    'type' => 'function'
                 ]
-            ]);
+            ]
+        ]);
         /** @var \Illuminate\Console\Scheduling\Schedule $schedule */
         $schedule = app()->make(\Illuminate\Console\Scheduling\Schedule::class);
 

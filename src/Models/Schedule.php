@@ -49,6 +49,7 @@ class Schedule extends Model
         'log_filename',
         'groups',
         'environments',
+        'without_overlapping_expires_at',
     ];
 
     protected $attributes = [
@@ -96,11 +97,14 @@ class Schedule extends Model
         $arguments = [];
 
         foreach (($this->params ?? []) as $argument => $value) {
-            if (empty($value['value'])) {
+            if (!is_array($value) || !array_key_exists('value', $value)) {
+                continue;
+            }
+            if ($value['value'] === null || $value['value'] === '') {
                 continue;
             }
             if (isset($value["type"]) && $value['type'] === 'function') {
-                eval('$arguments[$argument] = (string) ' .$value['value']);
+                $arguments[$argument] = $this->evaluateDynamicValue($value['value']);
             } else {
                 $arguments[$argument] = $value['value'];
             }
@@ -119,7 +123,7 @@ class Schedule extends Model
             $option = '--' . $option;
             if (is_array($value)) {
                 if (isset($value["type"]) && $value['type'] === 'function') {
-                    $options[$option] = (string)$value['value']();
+                    $options[$option] = $this->evaluateDynamicValue($value['value']);
                 } else {
                     $options[$option] = $value['value'];
                 }
@@ -129,6 +133,20 @@ class Schedule extends Model
         }
 
         return $options;
+    }
+
+    public function getCommandParameters(): array
+    {
+        return array_merge(array_values($this->getArguments()), $this->getOptions());
+    }
+
+    private function evaluateDynamicValue($expression): string
+    {
+        if (!config('database-schedule.allow_dynamic_parameters', true)) {
+            throw new \RuntimeException('Dynamic schedule parameters are disabled.');
+        }
+
+        return (string) eval('return ' . rtrim($expression, ';') . ';');
     }
 
     public static function getGroups()

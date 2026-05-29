@@ -45,7 +45,16 @@
                                     </td>
                                     <td class="col-2">{{ $history->created_at }}</td>
                                     <td class="col-1">
-                                        <button class="btn" data-clipboard-text="{{ $history->output }}" style="padding: 0px">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-primary p-1"
+                                                data-toggle="modal"
+                                                data-target="#history-output-modal-{{ $history->getKey() }}"
+                                                title="{{ trans('schedule::schedule.fields.output') }}">
+                                            <i class="bi bi-arrows-fullscreen" aria-hidden="true"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary copy-output p-1"
+                                                data-clipboard-text="{{ $history->output }}"
+                                                title="{{ trans('schedule::schedule.fields.output') }}">
                                             <i class="bi bi-clipboard-check" aria-hidden="true"></i>
                                         </button>
                                     </td>
@@ -60,18 +69,48 @@
                             @endforeach
                             </tbody>
                         </table>
+
+                        @foreach($histories as $history)
+                            <div class="modal fade"
+                                 id="history-output-modal-{{ $history->getKey() }}"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="history-output-modal-title-{{ $history->getKey() }}"
+                                 aria-hidden="true">
+                                <div class="modal-dialog modal-xl modal-dialog-scrollable"
+                                     role="document"
+                                     style="max-width: calc(100vw - 2rem);">
+                                    <div class="modal-content" style="height: calc(100vh - 2rem);">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="history-output-modal-title-{{ $history->getKey() }}">
+                                                {{ $history->command }} - {{ $history->created_at }}
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body p-0">
+                                            <pre class="bg-dark text-light p-3 mb-0 h-100"
+                                                 style="overflow: auto; white-space: pre-wrap;">{{ $history->output }}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
                 <!-- JavaScript -->
                 <script>
-                    new ClipboardJS('.btn');
+                    new ClipboardJS('.copy-output');
 
-                    // Opzionale: Aggiungi un feedback
-                    document.querySelectorAll('.btn').forEach(button => {
-                        button.addEventListener('click', function() {
-                            alert('Text copied to clipboard!');
-                        });
-                    });
+                    @if($histories->contains(function ($history) {
+                        return str_contains($history->output ?? '', 'Queued at ')
+                            && !str_contains($history->output ?? '', 'Finished at ');
+                    }))
+                        setTimeout(function () {
+                            window.location.reload();
+                        }, 5000);
+                    @endif
                 </script>
 
                 <div class='d-flex'>
