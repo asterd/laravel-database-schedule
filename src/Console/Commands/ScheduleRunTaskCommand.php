@@ -4,6 +4,7 @@ namespace RobersonFaria\DatabaseSchedule\Console\Commands;
 
 use Illuminate\Console\Command;
 use RobersonFaria\DatabaseSchedule\Models\ScheduleHistory;
+use RobersonFaria\DatabaseSchedule\Support\PhpBinary;
 use Symfony\Component\Process\Process;
 
 class ScheduleRunTaskCommand extends Command
@@ -64,7 +65,7 @@ class ScheduleRunTaskCommand extends Command
         }
 
         return new Process(array_merge(
-            [PHP_BINARY, base_path('artisan'), $task->command],
+            [PhpBinary::resolve(), base_path('artisan'), $task->command],
             $this->normalizeParameters($task->getCommandParameters())
         ), base_path());
     }

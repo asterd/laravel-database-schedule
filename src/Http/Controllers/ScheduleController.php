@@ -5,6 +5,7 @@ namespace RobersonFaria\DatabaseSchedule\Http\Controllers;
 use RobersonFaria\DatabaseSchedule\Http\Requests\ScheduleRequest;
 use RobersonFaria\DatabaseSchedule\Http\Services\CommandService;
 use RobersonFaria\DatabaseSchedule\Models\Schedule;
+use RobersonFaria\DatabaseSchedule\Support\PhpBinary;
 use RobersonFaria\DatabaseSchedule\View\Helpers;
 use Symfony\Component\Process\Process;
 
@@ -95,7 +96,7 @@ class ScheduleController extends Controller
     private function startManualRunProcess(Schedule $task, int $historyId): void
     {
         $command = implode(' ', [
-            escapeshellarg(PHP_BINARY),
+            escapeshellarg(PhpBinary::resolve()),
             escapeshellarg(base_path('artisan')),
             'database-schedule:run-task',
             (int) $task->id,

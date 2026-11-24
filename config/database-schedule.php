@@ -34,10 +34,16 @@ return [
     'enable_groups' => env('SCHEDULE_ENABLE_GROUPS', false),
 
     /**
+     * PHP CLI binary used to spawn artisan processes (manual runs from the UI).
+     * Leave null to auto-detect (PHP_BINARY under CLI, otherwise PATH lookup).
+     */
+    'php_binary' => env('SCHEDULE_PHP_BINARY'),
+
+    /**
      * Cache settings
      */
     'cache' => [
-        'store' => env('SCHEDULE_CACHE_DRIVER', 'file'),
+        'store' => env('SCHEDULE_CACHE_DRIVER'), // null = default cache store (must be shared across hosts/pods)
         'key' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_schedule_'),
         'ttl' => env('SCHEDULE_CACHE_TTL', null),
         'enabled' => env('SCHEDULE_CACHE_ENABLE', !config('app.debug')),
